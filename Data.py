@@ -1,5 +1,6 @@
 import pandas as pd
 import Tree as t
+import numpy as np
 
 class Dataset:
     def __init__(self):
@@ -7,7 +8,8 @@ class Dataset:
 
     def getLabels(self, data):
         labels = list(data)
-        return labels
+        myarray = np.asarray(labels)
+        return myarray
 
     def printData(self, dataset):
         print(dataset)
@@ -21,8 +23,17 @@ if __name__ == '__main__':
 
     data = ds.loadData("Datasets/binary/balance-scale.csv")
 
-    tree = t.Tree(data)
+
+    array = data.values.tolist()
+    rootnode = t.Node(data)
     ds.printData(data)
     labels = ds.getLabels(data)
-    print(labels)
+
+    print(array[1])
+    tree = t.Tree
+    q = t.Question(0, 2)
+    print(q.match(array[1]))
+    true_row, false_row = tree.partition(tree, data.values.tolist(), q)
+
+    print(true_row)
 
