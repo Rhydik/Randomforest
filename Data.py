@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     print(array[0])
     tree = t.Tree('Entropy')
-    q1 = t.Question(3, 5)
+    q1 = t.Question(1, 5)
     #print(q.match(array[1]))
     true_row1, false_row1 = tree.partition(rootnode.dataset, q1)
     control = t.Question(4, 'R')
@@ -45,6 +45,7 @@ if __name__ == '__main__':
     n_false_rows = len(false_row1)
     n_classes = len(rootnode.dataset)
     print(tree.entropy(n_true_rows, n_false_rows, n_classes))
+    print(tree.gini(n_true_rows, n_false_rows, n_classes))
 
     rootnode.left_child = lchild1
     rootnode.right_child = rchild1

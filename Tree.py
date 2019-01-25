@@ -7,6 +7,9 @@ class Node:
         self.left_child = None
         self.right_child = None
 
+    def get_data_for_node(self):
+        return
+
 class Tree:
     def __init__(self, criterion):
         self.criterion = criterion
@@ -24,10 +27,10 @@ class Tree:
     def find_split(self, data, labels):
         best_gain = 0
         best_question = None
-        if (self.criterion == 'Gini'):
+        if self.criterion == 'Gini':
             current_uncertainty = self.gini(data)
 
-        elif (self.criterion == 'Entropy'):
+        elif self.criterion == 'Entropy':
             current_uncertainty = self.entropy(data)
 
         n_features = len(labels) - 1
@@ -48,8 +51,12 @@ class Tree:
                         best_gain, best_question = gain, question
         return best_gain, best_question
 
-    def gini(self, data):
-        return
+    def gini(self, n_true_rows, n_false_rows, n_classes):
+        if n_true_rows == 0 or n_false_rows == 0:
+            return 0
+        else:
+            return 1 - (n_true_rows/n_classes)**2 - (n_false_rows/n_classes)**2
+
 
     def entropy(self, n_true_rows, n_false_rows, n_classes):
         if n_false_rows == 0 or n_true_rows == 0:
