@@ -48,6 +48,9 @@ class Tree:
     def accuracy_metric(self, actual, predicted):
         correct = 0
 
+        actual = np.asarray(actual)
+
+        predicted = np.asarray(predicted)
 
         for i in range(len(actual)):
             if actual[i] == predicted[i]:
@@ -197,6 +200,37 @@ class Leaf:
     def __init__(self, rows):
         self.predictions = class_counts(rows)
 
+class Random_Forest():
+    def __init__(self, criterion, max_features, max_depth, min_sample_leaf, n_estimators, bagging, sample_size, labels):
+        self.criterion = criterion
+        self.max_features = max_features
+        self.max_depth = max_depth
+        self.min_sample_leaf = min_sample_leaf
+        self.n_estimators = n_estimators
+        self.bagging = bagging
+        self.sample_size = sample_size
+        self.labels = labels
+
+    def fit(self, data):
+        t = Tree(self.criterion, self.max_features, self.max_depth, self.min_sample_leaf, self.labels)
+
+        trees = []
+
+        for i in range(self.n_estimators):
+            if (i == self.n_estimators):
+                return
+            if (self.bagging):
+                data = d.subsample(data)
+            my_tree = t.fit(data)
+            trees.append(my_tree)
+        return trees
+
+    def predict(self, data, trees):
+        predictions = []
+        for tree in trees:
+
+            predictions.append(tree.predict(data, tree))
+        return predictions
 
 if __name__ == '__main__':
 
@@ -209,9 +243,11 @@ if __name__ == '__main__':
 
     t = Tree('Gini', None, None, None, labels)
 
-    my_tree = t.fit(array)
+    rf = Random_Forest('Gini', None, None, None, 5, 1, None, labels)
 
-    t.print_tree(my_tree)
+    my_trees = rf.fit(array)
+
+
 
     testing_data = (
         [3, 3, 2, 1, 'R'],
@@ -221,17 +257,17 @@ if __name__ == '__main__':
         [1, 3, 3, 2, 'L'],
     )
     labels = []
-
     prediction = []
-    for row in testing_data:
-        print("Actual: %s. Predicted: %s" % (row[-1], t.predict_proba(t.predict(row, my_tree))))
-        labels.append(row[-1])
-        prediction.append(list(t.predict(row, my_tree).keys()))
 
-    labelsarray = np.asarray(labels)
+    for tree in my_trees:
+        t.print_tree(tree)
+        print(t.predict(testing_data, tree))
 
-    predarray = np.asarray(prediction)
+        for row in testing_data:
+            print("Actual: %s. Predicted: %s" % (row[-1], t.predict_proba(t.predict(row, tree))))
+            labels.append(row[-1])
+            prediction.append(list(t.predict(row, tree).keys()))
 
 
-    print(t.accuracy_metric(labelsarray, predarray))
+    print(t.accuracy_metric(labels, prediction))
 
