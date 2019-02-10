@@ -45,6 +45,16 @@ class Tree:
             probs[lbl] = str(int(counts[lbl] / total * 100)) + "%"
         return probs
 
+    def accuracy_metric(self, actual, predicted):
+        correct = 0
+
+
+        for i in range(len(actual)):
+            if actual[i] == predicted[i]:
+                correct += 1
+        return correct / float(len(actual)) * 100.0
+
+
     def fit(self, data):
         gain, question = self.find_split(data)
 
@@ -203,12 +213,25 @@ if __name__ == '__main__':
 
     t.print_tree(my_tree)
 
-    testing_data = [
+    testing_data = (
         [3, 3, 2, 1, 'R'],
         [5, 1, 3, 4, 'L'],
         [1, 5, 2, 2, 'L'],
         [2, 2, 3, 5, 'R'],
         [1, 3, 3, 2, 'L'],
-    ]
+    )
+    labels = []
+
+    prediction = []
     for row in testing_data:
-        print("Actual: %s. Predicted: %s" % (row[-1], t.predict_proba(t.predict(testing_data, my_tree))))
+        print("Actual: %s. Predicted: %s" % (row[-1], t.predict_proba(t.predict(row, my_tree))))
+        labels.append(row[-1])
+        prediction.append(list(t.predict(row, my_tree).keys()))
+
+    labelsarray = np.asarray(labels)
+
+    predarray = np.asarray(prediction)
+
+
+    print(t.accuracy_metric(labelsarray, predarray))
+
