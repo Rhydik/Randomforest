@@ -38,12 +38,18 @@ class Tree:
         else:
             return self.predict(data, node.false_branch)
 
-    def predict_proba(self, counts):
-        total = sum(counts.values()) * 1.0
-        probs = {}
-        for lbl in counts.keys():
-            probs[lbl] = str(int(counts[lbl] / total * 100)) + "%"
-        return probs
+    def predict_proba(self, data, node):
+        labels = []
+        prediction = []
+
+
+        for row in data:
+            labels.append(row[-1])
+            prediction.append(list(self.predict(row, node).keys()).pop())
+
+        accuracy = self.accuracy_metric(labels, prediction)
+
+        return accuracy
 
     def accuracy_metric(self, actual, predicted):
         correct = 0
@@ -61,8 +67,10 @@ class Tree:
     def fit(self, data):
         gain, question = self.find_split(data)
 
-        if gain == 0:
+        self.max_depth = self.max_depth - 1
+        if (gain == 0 or self.min_sample_leafs == 0 or self.max_depth == 0):
             return Leaf(data)
+
 
         true_rows, false_rows = self.partition(data, question)
 
@@ -73,9 +81,14 @@ class Tree:
         return Node(question, true_branch, false_branch)
 
 
+
+
+
     def find_split(self, data):
         best_gain = 0
         best_question = None
+        n_features = self.max_features
+
 
         if self.criterion == 'Gini':
             current_uncertainty = self.gini(data)
@@ -83,9 +96,13 @@ class Tree:
         elif self.criterion == 'Entropy':
             current_uncertainty = self.entropy(data)
 
-        n_features = len(self.labels) - 1
+        if (self.max_features == None):
+            n_features = len(self.labels) - 1
+        elif (self.max_features > len(self.labels)):
+            n_features = len(self.labels) - 1
 
-        for col in range(n_features):
+
+        for col in range(n_features - 1):
             values = set([row[col] for row in data])
             for val in values:
                 question = Question(col, val, self.labels)
@@ -159,6 +176,7 @@ class Tree:
 
     def print_tree(self, node, spacing=""):
 
+
         if isinstance(node, Leaf):
             print(spacing + "Predict", node.predictions)
             return
@@ -178,7 +196,6 @@ class Question:
         self.labels = labels
 
     def match(self, example):
-
         val = example[self.column]
         if self.is_numeric(val):
             return val >= self.value
@@ -193,14 +210,13 @@ class Question:
             self.labels[self.column], condition, str(self.value))
 
     def is_numeric(self, value):
-        """Test if a value is numeric."""
         return isinstance(value, int) or isinstance(value, float)
 
 class Leaf:
     def __init__(self, rows):
         self.predictions = class_counts(rows)
 
-class Random_Forest():
+class Random_Forest:
     def __init__(self, criterion, max_features, max_depth, min_sample_leaf, n_estimators, bagging, sample_size, labels):
         self.criterion = criterion
         self.max_features = max_features
@@ -226,48 +242,28 @@ class Random_Forest():
         return trees
 
     def predict(self, data, trees):
+        t = Tree(self.criterion, self.max_features, self.max_depth, self.min_sample_leaf, self.labels)
         predictions = []
         for tree in trees:
 
-            predictions.append(tree.predict(data, tree))
+            predictions.append(t.predict(data, tree))
+
         return predictions
 
-if __name__ == '__main__':
+    def predict_proba(self, data, trees):
+        t = Tree(self.criterion, self.max_features, self.max_depth, self.min_sample_leaf, self.labels)
 
+        labels = []
+        prediction = []
 
-    data = d.loadData("Datasets/binary/balance-scale.csv")
+        mean_accuracy = 0.0
 
-    labels = d.getLabels(data)
+        for tree in trees:
 
-    array = data.values.tolist()
+            for row in data:
+                labels.append(row[-1])
+                prediction.append(list(t.predict(row, tree).keys()))
 
-    t = Tree('Gini', None, None, None, labels)
+            mean_accuracy += t.accuracy_metric(labels, prediction)
 
-    rf = Random_Forest('Gini', None, None, None, 5, 1, None, labels)
-
-    my_trees = rf.fit(array)
-
-
-
-    testing_data = (
-        [3, 3, 2, 1, 'R'],
-        [5, 1, 3, 4, 'L'],
-        [1, 5, 2, 2, 'L'],
-        [2, 2, 3, 5, 'R'],
-        [1, 3, 3, 2, 'L'],
-    )
-    labels = []
-    prediction = []
-
-    for tree in my_trees:
-        t.print_tree(tree)
-        print(t.predict(testing_data, tree))
-
-        for row in testing_data:
-            print("Actual: %s. Predicted: %s" % (row[-1], t.predict_proba(t.predict(row, tree))))
-            labels.append(row[-1])
-            prediction.append(list(t.predict(row, tree).keys()))
-
-
-    print(t.accuracy_metric(labels, prediction))
-
+        return mean_accuracy
