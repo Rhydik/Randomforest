@@ -1,6 +1,14 @@
 import numpy as np
-import Data as d
-import random as r
+import Data as Data
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+
+
+def auc_score(precision, recall):
+    if recall == 0:
+        return 0
+    return 2 * ((precision * recall) / (precision + recall))
 
 
 def class_counts(data):
@@ -12,14 +20,26 @@ def class_counts(data):
         counts[result] += 1
     return counts
 
+
+def calculate_accuracy_precision_recall_auc(label, data):
+    if len(label) > len(data):
+        n = len(label) - len(data)
+        label = label[:-n]
+
+    accuracy = accuracy_score(label, data) * 100
+    precision = precision_score(label, data, average='macro') * 100
+    recall = recall_score(label, data, average='macro') * 100
+    auc = auc_score(precision, recall)
+
+    return accuracy, precision, recall, auc
+
+
 class Node:
     def __init__(self, question, true_branch, false_branch):
         self.question = question
         self.true_branch = true_branch
         self.false_branch = false_branch
 
-    def get_data_for_node(self):
-        return self.dataset
 
 class Tree:
     def __init__(self, criterion, max_features, max_depth, min_sample_leafs, labels):
@@ -42,35 +62,18 @@ class Tree:
         labels = []
         prediction = []
 
-
         for row in data:
             labels.append(row[-1])
             prediction.append(list(self.predict(row, node).keys()).pop())
 
-        accuracy = self.accuracy_metric(labels, prediction)
-
-        return accuracy
-
-    def accuracy_metric(self, actual, predicted):
-        correct = 0
-
-        actual = np.asarray(actual)
-
-        predicted = np.asarray(predicted)
-
-        for i in range(len(actual)):
-            if actual[i] == predicted[i]:
-                correct += 1
-        return correct / float(len(actual)) * 100.0
-
+        return labels, prediction
 
     def fit(self, data):
         gain, question = self.find_split(data)
 
         self.max_depth = self.max_depth - 1
-        if (gain == 0 or self.min_sample_leafs == 0 or self.max_depth == 0):
+        if gain == 0 or self.min_sample_leafs == 0 or self.max_depth == 0:
             return Leaf(data)
-
 
         true_rows, false_rows = self.partition(data, question)
 
@@ -80,15 +83,11 @@ class Tree:
 
         return Node(question, true_branch, false_branch)
 
-
-
-
-
     def find_split(self, data):
         best_gain = 0
         best_question = None
         n_features = self.max_features
-
+        current_uncertainty = 0
 
         if self.criterion == 'Gini':
             current_uncertainty = self.gini(data)
@@ -96,11 +95,10 @@ class Tree:
         elif self.criterion == 'Entropy':
             current_uncertainty = self.entropy(data)
 
-        if (self.max_features == None):
+        if self.max_features is None:
             n_features = len(self.labels) - 1
-        elif (self.max_features > len(self.labels)):
+        elif self.max_features > len(self.labels):
             n_features = len(self.labels) - 1
-
 
         for col in range(n_features - 1):
             values = set([row[col] for row in data])
@@ -108,7 +106,6 @@ class Tree:
                 question = Question(col, val, self.labels)
 
                 true_rows, false_rows = self.partition(data, question)
-
 
                 if len(true_rows) == 0 or len(false_rows) == 0:
                     continue
@@ -119,7 +116,8 @@ class Tree:
                     best_gain, best_question = gain, question
         return best_gain, best_question
 
-    def gini(self, data):
+    @staticmethod
+    def gini(data):
         rows = class_counts(data)
 
         list_of_labels = list(rows.values())
@@ -133,17 +131,14 @@ class Tree:
             else:
                 n_true_rows = float(list_of_labels.pop())
 
-
-
         if n_true_rows == 0 or n_false_rows == 0:
             return 0
         else:
             return 1 - (n_true_rows/(n_true_rows + n_false_rows))**2 - (n_false_rows/(n_true_rows + n_false_rows))**2
 
-
-    def entropy(self, data):
-        rows = class_counts(self, data)
-
+    @staticmethod
+    def entropy(data):
+        rows = class_counts(data)
 
         list_of_labels = list(rows.values())
         n_false_rows = float(list_of_labels.pop())
@@ -155,7 +150,8 @@ class Tree:
             return -(n_true_rows/(n_true_rows + n_false_rows)) * np.log2(n_true_rows/(n_true_rows + n_false_rows)) - \
                    (n_false_rows/(n_true_rows + n_false_rows)) * np.log2(n_false_rows/(n_true_rows + n_false_rows))
 
-    def partition(self, data, question):
+    @staticmethod
+    def partition(data, question):
         true_rows, false_rows = [], []
         for row in data:
             if question.match(row):
@@ -167,15 +163,13 @@ class Tree:
     def info_gain(self, true_rows, false_rows, current_uncertainty):
         p = float(len(true_rows) / ((len(true_rows)) + (len(false_rows))))
 
-
-        if (self.criterion == 'Gini'):
+        if self.criterion == 'Gini':
             return current_uncertainty - p * self.gini(true_rows) - (1 - p) * self.gini(false_rows)
 
-        elif (self.criterion == 'Entropy'):
+        elif self.criterion == 'Entropy':
             return current_uncertainty - p * self.entropy(true_rows) - p * self.entropy(false_rows)
 
     def print_tree(self, node, spacing=""):
-
 
         if isinstance(node, Leaf):
             print(spacing + "Predict", node.predictions)
@@ -188,6 +182,7 @@ class Tree:
 
         print(spacing + '--> False:')
         self.print_tree(node.false_branch, spacing + "  ")
+
 
 class Question:
     def __init__(self, column, value, labels):
@@ -209,14 +204,17 @@ class Question:
         return "Is %s %s %s?" % (
             self.labels[self.column], condition, str(self.value))
 
-    def is_numeric(self, value):
+    @staticmethod
+    def is_numeric(value):
         return isinstance(value, int) or isinstance(value, float)
+
 
 class Leaf:
     def __init__(self, rows):
         self.predictions = class_counts(rows)
 
-class Random_Forest:
+
+class RandomForest:
     def __init__(self, criterion, max_features, max_depth, min_sample_leaf, n_estimators, bagging, sample_size, labels):
         self.criterion = criterion
         self.max_features = max_features
@@ -233,10 +231,10 @@ class Random_Forest:
         trees = []
 
         for i in range(self.n_estimators):
-            if (i == self.n_estimators):
+            if i == self.n_estimators:
                 return
-            if (self.bagging):
-                data = d.subsample(data)
+            if self.bagging:
+                data = Data.subsample(data)
             my_tree = t.fit(data)
             trees.append(my_tree)
         return trees
@@ -254,16 +252,11 @@ class Random_Forest:
         t = Tree(self.criterion, self.max_features, self.max_depth, self.min_sample_leaf, self.labels)
 
         labels = []
-        prediction = []
-
-        mean_accuracy = 0.0
+        predictions = []
 
         for tree in trees:
-
             for row in data:
                 labels.append(row[-1])
-                prediction.append(list(t.predict(row, tree).keys()))
+                predictions.append(list(t.predict(row, tree).keys()).pop())
 
-            mean_accuracy += t.accuracy_metric(labels, prediction)
-
-        return mean_accuracy
+        return labels, predictions
