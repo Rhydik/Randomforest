@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 
 # Data preparation
-data = Data.load_data("Datasets/binary/balance-scale.csv")
+data = Data.load_data("Datasets/binary/heart-s.csv")
 
 features = Data.get_features(data)
 
@@ -70,28 +70,28 @@ their_accuracy, their_precision, their_recall, their_auc = calculate_accuracy_pr
 
 
 # Accuracy Decision Tree
-print("Total accuracy for my Decision Tree: %.2f" % my_accuracy)
-print("Total accuracy for sklearn Decision Tree: %.2f" % their_accuracy)
+print(("Total accuracy for my Decision Tree: %.2f" % my_accuracy).replace(".", ","))
+print(("Total accuracy for sklearn Decision Tree: %.2f" % their_accuracy).replace(".", ","))
 
 # Precision Decision Tree
-print("\nTotal precision for my Decision Tree: %.2f" % my_precision)
-print("Total precision for sklearn Decision Tree: %.2f" % their_precision)
+print(("\nTotal precision for my Decision Tree: %.2f" % my_precision).replace(".", ","))
+print(("Total precision for sklearn Decision Tree: %.2f" % their_precision).replace(".", ","))
 
 # Recall Decision Tree
-print("\nTotal recall for my Decision Tree: %.2f" % my_recall)
-print("Total recall for sklearn Decision Tree: %.2f" % their_recall)
+print(("\nTotal recall for my Decision Tree: %.2f" % my_recall).replace(".", ","))
+print(("Total recall for sklearn Decision Tree: %.2f" % their_recall).replace(".", ","))
 
 # AUC Decision Tree
-print("\nTotal AUC for my Decision Tree: %.2f" % my_auc)
-print("Total AUC for sklearn Decision Tree: %.2f" % their_auc)
+print(("\nTotal AUC for my Decision Tree: %.2f" % my_auc).replace(".", ","))
+print(("Total AUC for sklearn Decision Tree: %.2f" % their_auc).replace(".", ","))
 
 # Training Time Decision Tree
-print("\nTotal training time for my Decision Tree: %.2f" % my_train_time)
-print("Total training time for sklearn Decision Tree: %.2f" % their_train_time)
+print(("\nTotal training time for my Decision Tree: %f" % my_train_time).replace(".", ","))
+print(("Total training time for sklearn Decision Tree: %f" % their_train_time).replace(".", ","))
 
 # Testing Time Decision Tree
-print("\nTotal testing time for my Decision Tree: %.2f" % my_test_time)
-print("Total testing time for sklearn Decision Tree: %.2f" % their_test_time)
+print(("\nTotal testing time for my Decision Tree: %f" % my_test_time).replace(".", ","))
+print(("Total testing time for sklearn Decision Tree: %f" % their_test_time).replace(".", ","))
 
 # Fit my Random Forest
 start = time.time()
@@ -126,25 +126,25 @@ their_rf_accuracy, their_rf_precision, their_rf_recall, their_rf_auc = calculate
     rf_true_labels, their_preds)
 
 # Accuracy my Random Forest
-print("\n\nTotal accuracy for my Random Forest: %.2f" % my_rf_accuracy)
-print("Total accuracy for sklearn Random forest: %.2f" % their_rf_accuracy)
+print(("\n\nTotal accuracy for my Random Forest: %.2f" % my_rf_accuracy).replace(".", ","))
+print(("Total accuracy for sklearn Random forest: %.2f" % their_rf_accuracy).replace(".", ","))
 
 # Precision my Random Forest
-print("\nTotal precision for my Random Forest: %.2f" % my_rf_precision)
-print("Total precision for sklearn Random forest: %.2f" % their_rf_precision)
+print(("\nTotal precision for my Random Forest: %.2f" % my_rf_precision).replace(".", ","))
+print(("Total precision for sklearn Random forest: %.2f" % their_rf_precision).replace(".", ","))
 
 # Recall my Random Forest
-print("\nTotal recall for my Random Forest: %.2f" % my_rf_recall)
-print("Total recall for sklearn Random forest: %.2f" % their_rf_recall)
+print(("\nTotal recall for my Random Forest: %.2f" % my_rf_recall).replace(".", ","))
+print(("Total recall for sklearn Random forest: %.2f" % their_rf_recall).replace(".", ","))
 
 # AUC my Random Forest
-print("\nTotal AUC for my Random Forest: %.2f" % my_rf_auc)
-print("Total AUC for sklearn Random forest: %.2f" % their_rf_auc)
+print(("\nTotal AUC for my Random Forest: %.2f" % my_rf_auc).replace(".", ","))
+print(("Total AUC for sklearn Random forest: %.2f" % their_rf_auc).replace(".", ","))
 
 # Training Time my Random Forest
-print("\nTotal training time for my Random Forest: %.2f" % my_rf_train_time)
-print("Total training time for sklearn Decision Tree: %.2f" % their_rf_train_time)
+print(("\nTotal training time for my Random Forest: %f" % my_rf_train_time).replace(".", ","))
+print(("Total training time for sklearn Decision Tree: %f" % their_rf_train_time).replace(".", ","))
 
 # Testing Time my Random Forest
-print("\nTotal testing time for my Random Forest: %.2f" % my_rf_test_time)
-print("Total testing time for sklearn Random Forest Tree: %.2f" % their_rf_train_time)
+print(("\nTotal testing time for my Random Forest: %f" % my_rf_test_time).replace(".", ","))
+print(("Total testing time for sklearn Random Forest Tree: %f" % their_rf_train_time).replace(".", ","))
