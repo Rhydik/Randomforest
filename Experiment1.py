@@ -9,19 +9,20 @@ from sklearn.model_selection import train_test_split
 
 
 # Data preparation
-data = Data.load_data("Datasets/binary/heart-s.csv")
+data = Data.load_data("Datasets/binary/tic-tac-toe.csv")
 
 features = Data.get_features(data)
 
 training_data = data.values.tolist()
 
 # My classifiers
-dt = Tree.Tree('Gini', 4, 100, None, features)
-rf = Tree.RandomForest('Gini', 4, 20, None, 101, 1, None, features)
+dt = Tree.Tree(criterion='Gini', max_features=6, max_depth=1, min_sample_leafs=4, labels=features)
+rf = Tree.RandomForest(criterion='Gini', max_features=10, max_depth=5, min_sample_leaf=4, n_estimators=101, bagging=True,
+                       sample_size=None, labels=features)
 
 # Scikit-learn classifiers
-rfc = RandomForestClassifier(criterion='gini', max_features=4, max_depth=20, n_estimators=101)
-dtc = DecisionTreeClassifier(criterion="gini", max_features=4, max_depth=100)
+rfc = RandomForestClassifier(criterion='gini', max_features=10, max_depth=5, n_estimators=101, min_samples_leaf=4)
+dtc = DecisionTreeClassifier(criterion="gini", max_features=10, max_depth=5, min_samples_leaf=4)
 
 # Cross Validation
 train_data = numpy.array(data)
@@ -47,7 +48,7 @@ end = time.time()
 their_train_time = end - start
 
 # Print my tree
-# dt.print_tree(my_tree)
+dt.print_tree(my_tree)
 
 # Prediction my tree
 start = time.time()

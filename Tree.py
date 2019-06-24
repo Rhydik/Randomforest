@@ -5,6 +5,12 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 
 
+def global_counter():
+    global count
+    count = 0
+    return count
+
+
 def auc_score(precision, recall):
     if recall == 0:
         return 0
@@ -50,12 +56,15 @@ class Tree:
         self.labels = labels
 
     def predict(self, data, node):
-        if isinstance(node, Leaf):
+        count = global_counter()
+        if isinstance(node, Leaf) or global_counter() == self.max_depth:
             return node.predictions
 
         if node.question.match(data):
+            count += 1
             return self.predict(data, node.true_branch)
         else:
+            count += 1
             return self.predict(data, node.false_branch)
 
     def predict_proba(self, data, node):
@@ -243,7 +252,6 @@ class RandomForest:
         t = Tree(self.criterion, self.max_features, self.max_depth, self.min_sample_leaf, self.labels)
         predictions = []
         for tree in trees:
-
             predictions.append(t.predict(data, tree))
 
         return predictions
