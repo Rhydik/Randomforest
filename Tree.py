@@ -11,7 +11,7 @@ def global_counter():
     return count
 
 
-def auc_score(precision, recall):
+def calculate_auc_score(precision, recall):
     if recall == 0:
         return 0
     return 2 * ((precision * recall) / (precision + recall))
@@ -32,12 +32,20 @@ def calculate_accuracy_precision_recall_auc(label, data):
         n = len(label) - len(data)
         label = label[:-n]
 
-    accuracy = accuracy_score(label, data) * 100
+    accuracy = calculate_accuracy(label, data)
     precision = precision_score(label, data, average='macro') * 100
     recall = recall_score(label, data, average='macro') * 100
-    auc = auc_score(precision, recall)
+    auc = calculate_auc_score(precision, recall)
 
     return accuracy, precision, recall, auc
+
+
+def calculate_accuracy(label, data):
+    if len(label) > len(data):
+        n = len(label) - len(data)
+        label = label[:-n]
+
+    return accuracy_score(label, data) * 100
 
 
 class Node:

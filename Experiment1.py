@@ -9,14 +9,14 @@ from sklearn.model_selection import train_test_split
 
 
 # Data preparation
-data = Data.load_data("Datasets/binary/tic-tac-toe.csv")
+data = Data.load_data("Datasets/binary/credit-a.csv")
 
 features = Data.get_features(data)
 
 training_data = data.values.tolist()
 
 # My classifiers
-dt = Tree.Tree(criterion='Gini', max_features=6, max_depth=1, min_sample_leafs=4, labels=features)
+dt = Tree.Tree(criterion='Gini', max_features=6, max_depth=6, min_sample_leafs=4, labels=features)
 rf = Tree.RandomForest(criterion='Gini', max_features=10, max_depth=5, min_sample_leaf=4, n_estimators=101, bagging=True,
                        sample_size=None, labels=features)
 
@@ -69,7 +69,7 @@ my_accuracy, my_precision, my_recall, my_auc = calculate_accuracy_precision_reca
 their_accuracy, their_precision, their_recall, their_auc = calculate_accuracy_precision_recall_auc(true_labels,
                                                                                                    their_pred)
 
-
+print(my_pred)
 # Accuracy Decision Tree
 print(("Total accuracy for my Decision Tree: %.2f" % my_accuracy).replace(".", ","))
 print(("Total accuracy for sklearn Decision Tree: %.2f" % their_accuracy).replace(".", ","))
